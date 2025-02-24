@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order Tracking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      padding-top: 50px;
+    }
+    .container {
+      display: inline-block;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    .status {
+      font-size: 24px;
+      color: green;
+      margin: 20px 0;
+    }
+    .phase {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Track Your Order</h1>
+    <div id="orderInfo">
+      <p>Loading order status...</p>
+    </div>
+  </div>
+
+  <script>
+    // Function to get query parameters
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // The order ID passed from the QR code
+    const orderId = getQueryParam('orderid');
+
+    // Reference to the display element
+    const orderInfoDiv = document.getElementById('orderInfo');
+
+    if (!orderId) {
+      orderInfoDiv.innerHTML = '<p>No order ID provided.</p>';
+    } else {
+      // Fetch the order status JSON file (this file must be updated manually or via an automation process)
+      fetch('order_status.json')
+        .then(response => response.json())
+        .then(data => {
+          const status = data[orderId];
+          if (status) {
+            orderInfoDiv.innerHTML = `
+              <p class="phase">Order ID: ${orderId}</p>
+              <p class="status">${status}</p>
+              <p>Phases:</p>
+              <ul style="list-style: none; padding: 0;">
+                <li>1. Order Being Prepared</li>
+                <li>2. Packaging</li>
+                <li>3. On the Way</li>
+                <li>4. Delivered</li>
+              </ul>
+            `;
+          } else {
+            orderInfoDiv.innerHTML = `<p>Order ID ${orderId} not found. Please contact support.</p>`;
+          }
+        })
+        .catch(error => {
+          orderInfoDiv.innerHTML = '<p>Error loading order status.</p>';
+          console.error('Error:', error);
+        });
+    }
+  </script>
+</body>
+</html>
