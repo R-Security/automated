@@ -49,33 +49,41 @@
   const orderId = getQueryParam('orderid');
   console.log("Order ID from URL:", orderId);
 
-  // Use a cache buster to always get the latest JSON file
-  fetch('order_status.json?t=' + new Date().getTime())
-    .then(response => response.json())
-    .then(data => {
-      console.log("Order Status JSON keys:", Object.keys(data));
-      const status = data[orderId];
-      if (status) {
-        document.getElementById('orderInfo').innerHTML = `
-          <p class="phase">Order ID: ${orderId}</p>
-          <p class="status">${status}</p>
-          <p>Phases:</p>
-          <ul style="list-style: none; padding: 0;">
-            <li>1. Order Being Prepared</li>
-            <li>2. Packaging</li>
-            <li>3. On the Way</li>
-            <li>4. Delivered</li>
-          </ul>
-        `;
-      } else {
-        document.getElementById('orderInfo').innerHTML = `<p>Order ID not found. Please contact support.</p>`;
-      }
-    })
-    .catch(error => {
-      console.error("Error loading order status:", error);
-      document.getElementById('orderInfo').innerHTML = '<p>Error loading order status.</p>';
-    });
+  // Function to update order status display
+  function updateOrderStatus() {
+    fetch('order_status.json?t=' + new Date().getTime()) // cache buster added
+      .then(response => response.json())
+      .then(data => {
+        console.log("Order Status JSON keys:", Object.keys(data));
+        const status = data[orderId];
+        if (status) {
+          document.getElementById('orderInfo').innerHTML = `
+            <p class="phase">Order ID: ${orderId}</p>
+            <p class="status">${status}</p>
+            <p>Phases:</p>
+            <ul style="list-style: none; padding: 0;">
+              <li>1. Order Being Prepared</li>
+              <li>2. Packaging</li>
+              <li>3. On the Way</li>
+              <li>4. Delivered</li>
+            </ul>
+          `;
+        } else {
+          document.getElementById('orderInfo').innerHTML = `<p>Order ID not found. Please contact support.</p>`;
+        }
+      })
+      .catch(error => {
+        console.error("Error loading order status:", error);
+        document.getElementById('orderInfo').innerHTML = '<p>Error loading order status.</p>';
+      });
+  }
+
+  // Initial load
+  updateOrderStatus();
+  // Auto-refresh every 5 seconds (5000 milliseconds)
+  setInterval(updateOrderStatus, 5000);
 </script>
+
 
 </body>
 </html>
